@@ -1,8 +1,11 @@
 import gradio as gr
 import requests
 
-def chat(query, chat_history):
-    response = requests.post("https://smart-trivially-katydid.ngrok-free.app/query", json={"query": query, "chat_history": chat_history})
+def chat(query):
+    response = requests.post("https://smart-trivially-katydid.ngrok-free.app/query",
+                             headers={"Content-Type": "application/json",
+                                      "X-API-KEY": "e3876688bb83c070232a5df305f92eeb"},
+                             json={"query": query})
     return response.json().get("response", "Error: No response from backend")
 
 chatbot = gr.Chatbot(avatar_images=["user.jpg", "bot.png"], height=600)

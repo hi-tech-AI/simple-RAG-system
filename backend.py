@@ -9,6 +9,7 @@ from langchain.chains.question_answering import load_qa_chain
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+EXPECTED_API_KEY = os.getenv("EXPECTED_API_KEY")
 
 app = Flask(__name__)
 
@@ -20,14 +21,17 @@ vectordb_path = './customized_vector_db'
 
 @app.route('/query', methods=['POST'])
 def query():
+    api_key = request.headers.get('X-API-KEY')
+    if api_key != EXPECTED_API_KEY:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
     data = request.json
     user_query = data.get('query')
-    chat_history = data.get('chat_history', [])
 
-    response = rag_bot(user_query, chat_history)
+    response = rag_bot(user_query)
     return jsonify({'response': response})
 
-def rag_bot(query, chat_history):
+def rag_bot(query):
     print(f"Received query: {query}")
 
     template = """Please answer to human's input based on context. If the input is not mentioned in context, output something like 'I don't know'.
